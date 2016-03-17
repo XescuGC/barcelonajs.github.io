@@ -29,6 +29,15 @@ function normalize(options) {
   return options;
 }
 
+var test = function test() {
+  return function (files, metalsmith, done) {
+    //console.log(metalsmith.metadata());
+    //Object.keys(files).forEach(function(f) {
+      //console.log(files[f].collection);
+    //})
+    done();
+  }
+}
 var bcnjs = function bcnjs(opts) {
   opts = normalize(opts);
 
@@ -36,6 +45,25 @@ var bcnjs = function bcnjs(opts) {
     var metadata = metalsmith.metadata();
     var tmpEvent;
     var nextEvent;
+
+    //var newFiles = [];
+    //Object.keys(files).forEach( function(file) {
+      //if (file.match(/^data\/(?:talks|events)/)) {
+        //var oldContent = files[file];
+        //delete files[file];
+        //file.replace(/^data/,'');
+        //newFiles.push({ key: file, content: oldContent });
+      //}
+    //});
+
+
+    //console.log(newFiles);
+    //newFiles.forEach( function(file) { files[file.key] = file.content });
+
+    // Add the page Layout to all talks
+    for (var i = 0; i < metadata.talks.length; i++) {
+      metadata.talks[i].layout = 'page.html';
+    }
 
     for (var i = 0; i < metadata.events.length; i++) {
       var content = JSON.parse(metadata.events[i].contents.toString('utf-8'));
@@ -118,10 +146,8 @@ Metalsmith(__dirname)
     }
   }))
   .use(bcnjs())
-  .use(permalinks({
-    pattern: ':title'
-  }))
   .use(markdown())
+  //.use(test())
   .use(layouts({
     engine: 'handlebars',
     directory: 'src/layouts',
@@ -131,6 +157,11 @@ Metalsmith(__dirname)
     outputStyle: 'expanded',
     outputDir: 'assets/css/'
   }))
+  .use(test())
+  //.use(permalinks({
+    //relative: false,
+    //pattern: ':collection/:id'
+  //}))
   .use(assets({
     source: './assets', // relative to the working directory
     destination: './assets' // relative to the build directory
